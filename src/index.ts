@@ -12,7 +12,7 @@ app.use(cors())
 //teste
 
 app.get('/oi', (req, res) => {
-    res.send("oi")
+    res.send("ola")
 })
 
 //Criar Conta
