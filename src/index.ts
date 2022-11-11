@@ -1,3 +1,4 @@
+import { Usuario } from './types';
 import express, {Request, Response} from "express"
 import {usuarios} from './data'
 
@@ -67,6 +68,32 @@ app.post("/cadastro", (req:Request, res: Response) => {
 
         res.status(201).send(usuarios)
     }catch(e:any){
+        res.status(errorCode).send(e.message)
+    }
+})
+
+//pegar saldo
+
+app.get("/usuarios/saldo", (req:Request, res:Response)=>{
+    let {nome, cpf, saldo} = req.body
+    let errorCode = 400
+  
+    try {
+        if(!nome){
+            errorCode = 401
+            throw new Error("Usuário não cadastrado")
+        }
+        if(!cpf){
+            errorCode = 401
+            throw new Error("É necessário informar o CPF de um usuário cadastrado")
+        }
+
+        const balance = usuarios.find(usuario => usuario.saldo === saldo)
+        
+        res.status(200).send(balance)
+        
+
+    } catch (e:any){
         res.status(errorCode).send(e.message)
     }
 })
