@@ -75,10 +75,13 @@ app.post("/cadastro", (req:Request, res: Response) => {
 //pegar saldo
 
 app.get("/usuarios/saldo", (req:Request, res:Response)=>{
-    let {nome, cpf, saldo} = req.body
+
     let errorCode = 400
   
     try {
+        const nome = req.headers.nome
+        const cpf = req.headers.cpf
+
         if(!nome){
             errorCode = 401
             throw new Error("Usuário não cadastrado")
@@ -88,12 +91,19 @@ app.get("/usuarios/saldo", (req:Request, res:Response)=>{
             throw new Error("É necessário informar o CPF de um usuário cadastrado")
         }
 
-        const balance = usuarios.find(usuario => usuario.saldo === saldo)
-        
-        res.status(200).send(balance)
-        
+        const buscaUsuario = usuarios.filter((usuario)=>{
+            if (cpf === usuario.cpf){
+                return usuario.saldo
+            }
+        })
 
-    } catch (e:any){
+        const saldo = buscaUsuario.map((saldo)=>{
+            return saldo.saldo
+        })
+        
+        res.status(200).send(saldo)
+        
+     } catch (e:any){
         res.status(errorCode).send(e.message)
     }
 })
