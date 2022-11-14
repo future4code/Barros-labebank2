@@ -98,6 +98,56 @@ app.get("/usuarios/saldo", (req:Request, res:Response)=>{
     }
 })
 
+// Adicionar saldo
+
+app.patch("/usuarios/addsaldo", (req: Request, res: Response) => {
+    let nome = req.headers.nome as string;
+    let cpf = req.headers.cpf as string;
+    let saldo = req.body.saldo;
+    let errorCode = 400;
+  
+    try {
+      if (!nome) {
+        errorCode = 422;
+        throw new Error("Informe o seu nome.");
+      }
+  
+      if (!cpf) {
+        errorCode = 422;
+        throw new Error("Informe o número do seu CPF.");
+      }
+      if (!saldo) {
+        errorCode = 422;
+        throw new Error("Informe o valor a ser adicionado.");
+      }
+  
+      const validandoUsuario = usuarios.find((usuario) => {
+        if (
+          usuario.nome.toLowerCase() === nome.toLowerCase() &&
+          usuario.cpf === cpf
+        ) {
+          return usuarios;
+        }
+      });
+  
+      if (!validandoUsuario) {
+        errorCode = 422;
+        throw new Error("Usuário não encontrado.");
+      }
+  
+      usuarios.forEach((item) => {
+        if (item.nome.toLowerCase() === nome.toLowerCase() && item.cpf === cpf) {
+          item.saldo = item.saldo + saldo;
+        }
+      });
+  
+        
+      res.status(200).send(usuarios);
+    } catch (e:any) {
+      res.status(errorCode).send(e.message);
+    }
+  });
+
 //Server
 app.listen(3003, () => {
     console.log("Server is running in http://localhost:3003");

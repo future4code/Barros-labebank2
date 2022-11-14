@@ -3,7 +3,7 @@ import * as allTypes from "./types";
 
 export const usuarios: allTypes.Usuario[] = [
   {
-    nome: "Kayo Céshar",
+    nome: "Kayo Ceshar",
     cpf: "06502502545",
     dataDeNascimento: "15/04/1995",
     saldo: 12000,
