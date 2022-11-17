@@ -75,13 +75,10 @@ app.post("/cadastro", (req:Request, res: Response) => {
 //pegar saldo
 
 app.get("/usuarios/saldo", (req:Request, res:Response)=>{
-
+    let {nome, cpf, saldo} = req.body
     let errorCode = 400
   
     try {
-        const nome = req.headers.nome
-        const cpf = req.headers.cpf
-
         if(!nome){
             errorCode = 401
             throw new Error("Usuário não cadastrado")
@@ -91,19 +88,12 @@ app.get("/usuarios/saldo", (req:Request, res:Response)=>{
             throw new Error("É necessário informar o CPF de um usuário cadastrado")
         }
 
-        const buscaUsuario = usuarios.filter((usuario)=>{
-            if (cpf === usuario.cpf){
-                return usuario.saldo
-            }
-        })
+        const balance = usuarios.find(usuario => usuario.saldo === saldo)
+        
+        res.status(200).send(balance)
+        
 
-        const saldo = buscaUsuario.map((saldo)=>{
-            return saldo.saldo
-        })
-        
-        res.status(200).send(saldo)
-        
-     } catch (e:any){
+    } catch (e:any){
         res.status(errorCode).send(e.message)
     }
 })
@@ -157,6 +147,81 @@ app.patch("/usuarios/addsaldo", (req: Request, res: Response) => {
       res.status(errorCode).send(e.message);
     }
   });
+
+
+//Pagar Conta
+
+app.post("/usuarios/pagamento", (req: Request, res: Response) => {
+  let cpf = req.headers.cpf as string;
+  let { valor, data, descricao } = req.body;
+  let errorCode = 400;
+  let validandoUsuario = usuarios.find((usuario) => usuario.cpf === cpf);
+  const hoje = new Date();
+  try {
+    if (!cpf) {
+      errorCode = 422;
+      throw new Error("Informe o número do seu CPF.");
+    }
+    if (!valor) {
+      errorCode = 422;
+      throw new Error("é necessário informar o valor da conta.");
+    }
+
+    if (!descricao) {
+      errorCode = 422;
+      throw new Error(
+        "é necessário informar a descricação da conta a ser paga."
+      );
+    }
+
+    if (!validandoUsuario) {
+      errorCode = 401;
+      throw new Error("Usuário não encontrado.");
+    }
+
+    if (valor > validandoUsuario.saldo) {
+      errorCode = 401;
+      throw new Error("Saldo insuficiente.");
+    }
+
+    if (!data) {
+      const dia = hoje.getDate();
+      const mes = hoje.getMonth() + 1;
+      const ano = hoje.getFullYear();
+      data = `${dia}/${mes}/${ano}`;
+    }
+
+    let dataInformada = data.split("/");
+    const ano1 = Number(dataInformada[2]);
+    const mes1 = Number(dataInformada[1]);
+    const dia1 = Number(dataInformada[0]);
+    const conferindoData = new Date(
+      ano1,
+      mes1 - 1,
+      dia1,
+      new Date().getHours() + 1,
+      new Date().getMinutes(),
+      new Date().getSeconds()
+    );
+
+    if (conferindoData < hoje) {
+      errorCode = 401;
+      throw new Error(
+        "Não é possível realizar pagamentos em uma data anterior ao dia de hoje."
+      );
+    }
+
+    validandoUsuario.extrato.push({
+      valor,
+      data,
+      descricao
+    });
+
+    res.status(200).send(validandoUsuario);
+  } catch (e:any) {
+    res.status(errorCode).send(e.message);
+  }
+});
 
 //Server
 app.listen(3003, () => {
