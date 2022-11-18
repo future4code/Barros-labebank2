@@ -14,7 +14,7 @@ export const usuarios: allTypes.Usuario[] = [
     ]
   },
   {
-    nome: "Felipe Alcântara",
+    nome: "Felipe Alcantara",
     cpf: "02102536987",
     dataDeNascimento: "09/10/1994",
     saldo: 7000,
