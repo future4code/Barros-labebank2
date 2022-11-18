@@ -9,10 +9,7 @@ app.use(express.json())
 
 app.use(cors())
 
-
-
 //Criar Conta
-
 app.post("/cadastro", (req: Request, res: Response) => {
   const { nome, cpf, dataDeNascimento } = req.body;
   const validandoCpf = usuarios.find((usuario) => usuario.cpf === cpf);
